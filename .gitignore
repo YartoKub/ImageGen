@@ -163,3 +163,4 @@ cython_debug/
 imageGenFinished/
 imageGenKnight/
 KnightPhotos.npy
+ch6_gaugan.ipynb
