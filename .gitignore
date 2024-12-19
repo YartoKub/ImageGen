@@ -162,5 +162,9 @@ cython_debug/
 # My stuff:
 imageGenFinished/
 imageGenKnight/
+RetiredCube_ImageGenFinished/
 KnightPhotos.npy
+CubePhotos.npy
 ch6_gaugan.ipynb
+TrainedModels/
+PreparedNp/
