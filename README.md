@@ -21,5 +21,8 @@
 ![image](https://github.com/user-attachments/assets/f675fad6-700c-4b9d-b912-5f36e74e1a27)
 ![image](https://github.com/user-attachments/assets/7a0c8131-b15b-4d01-8b18-9f1b500ef6bf)
 
+01 Февраля 2025 | Сделал инструмент для рассчета освещения на основе нормалей и вектора.
+
+![image](https://github.com/user-attachments/assets/88c1d4b7-4a45-4ccb-8ca6-bc14cd405272)
 
 
