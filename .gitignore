@@ -169,6 +169,11 @@ ch6_gaugan.ipynb
 TrainedModels/
 PreparedNp/
 EEVEE_pastel_rubic/
+EEVEE_pastel_donut/
+EEVEE_pastel_pringle/
+BigData/
+pred_EEVEE_pastel_donut/
+pred_EEVEE_pastel_pringle/
 EEVEE_gold_cube/
 PastelRubicPhotos.npy
 somewhatgoodrubic.keras
