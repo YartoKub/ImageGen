@@ -25,4 +25,7 @@
 
 ![image](https://github.com/user-attachments/assets/88c1d4b7-4a45-4ccb-8ca6-bc14cd405272)
 
+21 Февраля 2025 | Значительно улучшил качество генерируемых нормалей. Для этого я натренировал отдельную нейросеть, которая делает нормали четче. 
+
+![image](https://github.com/user-attachments/assets/fed3f97f-b438-4f93-8859-39d5cf166838)
 
