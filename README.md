@@ -1,6 +1,8 @@
 # ImageGen
- Работаю с картинками
-22 Февраля 2025 | Попробовал использовать U-net для генерации нормалей. Качество хорошее, нет размытостей, но часто на генерациях появляются битые пиксели и бляшки. 
+DataSet лежит  [Тут](https://github.com/YartoKub/ImageGen/tree/main/pred_EEVEE_gold_cube), это устаревшая версия, по мере работы я добавлю больше картинок. Датасет хранится в виде Numpy массивов, там есть и картинки, и направления векторов.
+
+Работаю с картинками
+22 Февраля 2025 | Попробовал использовать  [U-net](https://github.com/YartoKub/ImageGen/blob/main/UNET_normals_generator.ipynb) для генерации нормалей. Качество хорошее, нет размытостей, но часто на генерациях появляются битые пиксели и бляшки. 
 Пробовал использовать dropout, но он не исправлял проблему.
 
 ![image](https://github.com/user-attachments/assets/33e82b64-f395-42de-a790-4dc9ad90315b)
@@ -9,7 +11,7 @@
 
 ![image](https://github.com/user-attachments/assets/fed3f97f-b438-4f93-8859-39d5cf166838)
 
-01 Февраля 2025 | Сделал инструмент для рассчета освещения на основе нормалей и вектора.
+01 Февраля 2025 | Сделал [Инструмент](https://github.com/YartoKub/ImageGen/blob/main/NormalRelight.ipynb) для рассчета освещения на основе нормалей и вектора.
 
 ![image](https://github.com/user-attachments/assets/88c1d4b7-4a45-4ccb-8ca6-bc14cd405272)
 
