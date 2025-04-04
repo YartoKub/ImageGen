@@ -1,5 +1,6 @@
 # ImageGen
 DataSet лежит  [Тут](https://github.com/YartoKub/ImageGen/tree/main/pred_EEVEE_gold_cube), это устаревшая версия, по мере работы я добавлю больше картинок. Датасет хранится в виде Numpy массивов, там есть и картинки, и направления векторов.
+
 05 Апреля 2025
 Сделал [модель для смены освещения](https://github.com/YartoKub/ImageGen/blob/main/CubeRelight.ipynb). Хорошая модель сохранена на у меня локально на компе под именем goodNTLmodel001.keras, весит 135МБ. Принесу на флешке.
 
