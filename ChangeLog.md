@@ -4,14 +4,14 @@ DataSet лежит  [Тут](https://github.com/YartoKub/ImageGen/tree/main/pred
 
 ### 1 Мая 2025
 
-Реализовал метод генерации освещения на основе глубины пикселя. Это должно давать тени. Jupyter: ![Тут](https://github.com/YartoKub/ImageGen/blob/main/VolumeLight.ipynb)
+Реализовал метод генерации освещения на основе глубины пикселя. Это должно давать тени. Jupyter: [Тут](https://github.com/YartoKub/ImageGen/blob/main/VolumeLight.ipynb)
 
 ![dots_gif](https://github.com/user-attachments/assets/eadcbda2-5a54-4adb-b69f-de74c52c9c56)
 
 
 ### 25 Апреля 2025
 
-Новый программный ![метод](https://github.com/YartoKub/ImageGen/blob/main/NormalRelight.ipynb) генерации нормалей с учетом глубины изображения. Получилось плохо, она работает лишь на половину: когда координаты точки освещения уходят в отрицательную зону она ломается.  
+Новый программный [метод](https://github.com/YartoKub/ImageGen/blob/main/NormalRelight.ipynb) генерации нормалей с учетом глубины изображения. Получилось плохо, она работает лишь на половину: когда координаты точки освещения уходят в отрицательную зону она ломается.  
 
 ![depthanimation](https://github.com/user-attachments/assets/b777f2e4-32f0-43bc-8cf5-ab9d9fe893c5)
 
