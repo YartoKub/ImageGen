@@ -1,0 +1,12 @@
+.gallery_block { width: 100px;  height: 100px; 
+        display: inline-block;
+        padding: 0px; border: none; 
+}
+
+.gallery_body { border: 5px;  border-color: blue;
+    overflow: scroll;  width: 250px;  height: 200px; 
+    background-color: beige;  
+}
+
+
+

@@ -1,36 +1,31 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <style> 
+
+    </style>
+    <script src="/todolist.js"></script>
+    <script src="/GenerateNewIndex.js"></script>
+
     <title>Stop Server</title>
 </head>
-<body>
+<body id="main_body">
     <h1>Домашняя страница</h1>
     <p> Ссылка на другую страницу: <a href="/page2.html">Страница 2 </a> </p>
-    <script>
-    async function sendData() {
-        my_adress = 'http://127.0.0.1:2000'
-        const data = document.getElementById('data').value;
-        const response = await fetch(my_adress, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: JSON.stringify({
-                title: "Action",
-                body: "ActionName",
-                params: encodeURIComponent(data)
-            }) 
-        });
-        const result = await response.text();
-        console.log(result);
-    }
-    </script>
+    
+    <script>createToDoInstance()</script>
+    <script>createToDoInstance()</script>
 
-    <form onsubmit="event.preventDefault(); sendData();">
-        <label for="data">Введите данные:</label>
-        <input type="text" id="data" name="data">
-        <input type="submit" value="Отправить">
-    </form>
+    <div class="gallery_body">
+        <div class="gallery_block" style="background-color: yellow;"> </div>
+        <div class="gallery_block" style="background-color: red;"> </div>
+        <div class="gallery_block" style="background-color: blue;"> </div>
+        <div class="gallery_block" style="background-color: green;"> </div>
+        <div class="gallery_block" style="background-color: orange;"> </div>
+        <div class="gallery_block" style="background-color: black;"> </div>
+    </div>
+
+
+
 </body>
 </html>
