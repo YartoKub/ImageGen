@@ -1,12 +1,27 @@
-.gallery_block { width: 100px;  height: 100px; 
+.image_gallery_block { width: 100px;  height: 100px; 
         display: inline-block;
         padding: 0px; border: none; 
+        margin: 5px;
 }
 
-.gallery_body { border: 5px;  border-color: blue;
-    overflow: scroll;  width: 250px;  height: 200px; 
+.image_gallery_body { border: 0px, solid, darkblue;
+    width: 350px;  height: 500px; 
     background-color: beige;  
+    
 }
 
+.gallery_file_load_part { border: 0px, solid, darkblue;
+    padding: 0px;
+    width: 100%;  height: 20%; 
+    background-color: yellow;  
+}
+
+.gallery_list_part { border: 0px, solid, darkblue;
+    padding: 0px;
+    width: 100%;  height: 80%; 
+    background-color: orchid;  
+    overflow-y: scroll;  overflow-x: hidden;
+    scrollbar-width: none;
+}
 
 
