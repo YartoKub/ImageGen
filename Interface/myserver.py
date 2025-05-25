@@ -22,10 +22,4 @@ def start_server():
         server.close()
         print("Server down due to keyboard interrupt")
 
-
-
-
-
-    
-
 start_server()

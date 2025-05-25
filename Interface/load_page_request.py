@@ -7,7 +7,7 @@ def load_page_from_request(request_data):
     path = constants.PAGE_FOLDER + request_data
     response = ''
     print("Try open page at: ", path)
-
+ 
     success, data = get_page_text(request_data)
     style_start_pure = data.find(style_tag)
     style_start_offset = style_start_pure + len(style_tag)
@@ -21,8 +21,6 @@ def load_page_from_request(request_data):
         return constants.HEADER200 + first_half_data + style_string + second_half_data
     else:
         return constants.HEADER404 + 'This page does not exist'
-
-
     '''
     try:
         with open(path, "r", encoding="utf-8") as file:
