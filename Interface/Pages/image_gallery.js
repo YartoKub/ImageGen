@@ -27,9 +27,6 @@ class imageGalleryController {
         new_addition.className = "image_gallery_block";
         console.log("Inside createChildImage");
         this.inner_list.appendChild(new_addition)
-        this.image_list.push(image_src)
-        console.log(image_src)
-        
     }
 
     registerImage(event) {
@@ -55,11 +52,13 @@ class imageGalleryController {
         var files = this.inner_file_loader.files;
         let present_pictures = this.image_list.length
         for (let i = 0; i < files.length; i++) {
+            console.log("Изменил код в этом с")
             this.image_list.push(files[i])
             console.log(files[i])
         }
 
         for (let i = 0; i < files.length; i++) {
+            console.log(new Blob(files[i]))
             let current_index = present_pictures + i
             let new_url = URL.createObjectURL(this.image_list[current_index])
             console.log("loaded new image: " + new_url)
@@ -67,7 +66,9 @@ class imageGalleryController {
         }
         console.log("Я отключил очистку изображения после загрузки")
         //this.inner_file_loader.value = ""; // Эта штука опустошает значение value после загрузки, но инфа о изображении уже существует в event поэтому все ОК
-    }
+        var files = this.inner_file_loader.files;
+}
+    
 
     async sendData2server2() {
         console.log("mom i am here");
@@ -204,8 +205,8 @@ function createImageGalleryInstance() {
         inner_file_loader = document.createElement('input'); inner_file_loader.type = 'file'; inner_file_loader.type = 'file'; inner_file_loader.multiple = "multiple";
         inner_file_loader.innerHTML = "file to upload";
         inner_file_loader.addEventListener('change', function(event) { 
-            inner_file_loader.myController.registerImage(event)
-            //inner_file_loader.myController.registerFrontImages(event)
+            //inner_file_loader.myController.registerImage(event)
+            inner_file_loader.myController.registerFrontImages(event)
         })
 
         my_body_controller = new imageGalleryController(my_body, inner_list, inner_file_loader);

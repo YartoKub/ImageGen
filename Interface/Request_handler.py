@@ -9,6 +9,7 @@ import cgi
 global one_and_only_image_manager 
 one_and_only_image_manager = ImageManager()
 def request_handler(request_data, adress): # Эта штука должна определять тип реквеста и вызывать соответствующую функцию наверное из словаря функций?
+    print("начал принимать дату")
     print(request_data)
     start_index = request_data. find("{")
     end_index   = request_data.rfind("}")
