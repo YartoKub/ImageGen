@@ -9,6 +9,7 @@ import pandas
 from matplotlib import pyplot as plt
 from PIL import Image
 import os
+from RGBHSL import image_coverter,  pixel_hsl_to_rgb, pixel_rgb_to_hsl
 
 # ===== ACCEPTABLE_SIZES =====
 DEFAULT_INPUT_SIZE = (None, 64, 64, 3)
@@ -167,6 +168,82 @@ class NN_Manager():
         self.LIGHT_MODEL = loaded_model
         self.modelUpdate("LIGHT", True, f"Успешная загрузка световой модели! ")
         return
+# ============================= SINGLE IMAGE PROCESSING ====================================
+    def RenderSingleImage(self, map_name, input_image, input_vector = None):
+        if  map_name == "NORMAL":
+            if self.NORMAL_MODEL == None: return self.fillerImage(input_image)
+            result = self.NORMAL_MODEL.predict(input_image.reshape((1, 64, 64, 3)))[0]
+            return np.clip(result, 0, 1)
+        
+        if  map_name == "COLOR" :
+            if self.COLOR_MODEL == None: return self.fillerImage(input_image)
+            if self.COLOR_MODEL_FORMAT == RGB_FORMAT:
+                result = input_image - self.COLOR_MODEL.predict(input_image.reshape((1, 64, 64, 3)))[0]
+            if self.COLOR_MODEL_FORMAT == HSL_FORMAT:
+                temp_hsl = image_coverter(input_image, pixel_rgb_to_hsl, True, True)
+                result = self.COLOR_MODEL.predict(temp_hsl.reshape((1, 64, 64, 3))) 
+                result = result[0] # тут только два своя: S и L
+                result = np.stack([temp_hsl[:,:,0], temp_hsl[:,:,1] - result[:,:,0], temp_hsl[:,:,2] - result[:,:,1]], axis = 2)
+                result = image_coverter(result, pixel_hsl_to_rgb, True, True)
+            return np.clip(result, 0, 1)
+        
+        if  map_name == "DEPTH" :
+            if self.DEPTH_MODEL == None: return self.fillerImage(input_image)
+            result = self.DEPTH_MODEL.predict(input_image.reshape((1, 64, 64, 3)))[0]
+            result = np.stack([result, result, result], axis=2)
+            return np.clip(result, 0, 1)
+        
+        if  map_name == "LIGHT" and input_vector != None:
+            if self.LIGHT_MODEL == None: return self.fillerImage(input_image)
+            result = self.LIGHT_MODEL.predict(input_image.reshape((1, 64, 64, 3)), input_vector)[0]
+            return result # Здесь нет clip т.к. свет может быть выше 1. Ограничение должно накладыватсья позднее
+# ================ MULTIPLE IMAGE PROCESSING ======================================================
+    def RenderMultipleImages(self, map_name, input_image_list, input_vector_list = None):
+        if  map_name == "NORMAL":
+            if self.NORMAL_MODEL == None: return self.fillerImage(input_image_list)
+            result = self.NORMAL_MODEL.predict(input_image_list)
+            return np.clip(result, 0, 1)
+        
+        if  map_name == "COLOR" :
+            if self.COLOR_MODEL == None: return self.fillerImage(input_image_list)
+            if self.COLOR_MODEL_FORMAT == RGB_FORMAT:
+                result = input_image_list - self.COLOR_MODEL.predict(input_image_list)
+                return np.clip(result, 0, 1)
+            if self.COLOR_MODEL_FORMAT == HSL_FORMAT:
+                #print("Inside HSL")
+                new_array = np.zeros(input_image_list.shape)
+                for i in range(input_image_list.shape[0]):
+                    #print(f"image convering RGB -> HSL {i}")
+                    new_array[i] = image_coverter(input_image_list[i], pixel_rgb_to_hsl, True, True)
+
+                result = self.COLOR_MODEL.predict(new_array) 
+                result = np.stack([new_array[:,:,:,0], new_array[:,:,:,1] - result[:,:,:,0], new_array[:,:,:,2] - result[:,:,:,1]], axis = 3)
+
+                to_return = np.zeros(input_image_list.shape)
+                for i in range(new_array.shape[0]):
+                    #print(f"image convering HSL -> RGB {i}")
+                    to_return[i] = image_coverter(result[i], pixel_hsl_to_rgb, True, True)
+
+                result = to_return
+
+
+
+                return np.clip(result, 0, 1)
+        
+        if map_name == "DEPTH" :
+            if self.DEPTH_MODEL == None: return self.fillerImage(input_image_list)
+            result = self.DEPTH_MODEL.predict(input_image_list)
+            result = np.stack([result, result, result], axis=3)
+            return np.clip(result, 0, 1)
+        
+        if  map_name == "LIGHT" and input_vector_list != None:
+            if self.LIGHT_MODEL == None: return self.fillerImage(input_image_list)
+            result = self.LIGHT_MODEL.predict(input_image_list, input_vector_list)
+            return result # Здесь нет clip т.к. свет может быть выше 1. Ограничение должно накладыватсья позднее
+    
+
+    def fillerImage(self, map_name, input_image):
+        return np.random.random(input_image.shape)
 
 
     def modelUpdate(self, model_map, status = False, reason_str = "провал"):
@@ -176,3 +253,5 @@ class NN_Manager():
         result = (result[0] * 255).astype(np.uint8)
         image = Image.fromarray(result)
         image.save('output_image.png')
+
+    

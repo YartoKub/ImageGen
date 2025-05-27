@@ -1,38 +1,45 @@
 import numpy as np
-import cv2
-from PyQt5.QtWidgets import QLabel, QWidget, QScrollArea, QVBoxLayout, QPushButton, QListWidget
-from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtWidgets import QWidget, QScrollArea, QVBoxLayout
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap
-from numpyimagevisualizer import ItemWidget
 from PIL import Image
+
+from pyqtint.numpyimagevisualizer import ItemWidget
+
 
 class UploadList(QWidget):
     def __init__(self, parent=None):
         super(UploadList, self).__init__(parent)
         self.setFixedHeight(700); 
-        self.setFixedWidth(520); 
+        self.setFixedWidth(440); 
         self.setAcceptDrops(True)
         self.setStyleSheet("background-color: #cfcfcf; padding: 0px; margin: 0px; border: none;")
 
+        self.my_parent = parent
         self.raw_photograph_list = []
         self.raw_normal_map_list = []
         self.raw_color_map_list = []
         self.raw_depth_map_list = []
+        self.raw_vector_list = []
         self.representatives = []
         
         layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         layout.setContentsMargins(0, 0, 0, 0)
-        
+
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area_content = QWidget()
         self.scroll_area_layout = QVBoxLayout(self.scroll_area_content)
         self.scroll_area.setWidget(self.scroll_area_content)
-        
+        self.scroll_area.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
-
-        for i in range(9):  
-            item_widget = self.RandomWidget(i + 1)
+        dummy_list = ["ImageGen\\pyqtint\\Dummies\\0016.png", "ImageGen\\pyqtint\\Dummies\\0079.png", "ImageGen\\pyqtint\\Dummies\\3117.png",
+                      "ImageGen\\pyqtint\\Dummies\\0016.png", "ImageGen\\pyqtint\\Dummies\\0079.png", "ImageGen\\pyqtint\\Dummies\\3117.png"]
+        for i in range(len(dummy_list)):  
+            new_img = Image.open(dummy_list[i])
+            np_array = np.asarray(new_img)
+            item_widget = self.AddNewWidget(np_array)
             #self.scroll_area_layout.addWidget(item_widget)
 
         layout.addWidget(self.scroll_area)
@@ -75,10 +82,22 @@ class UploadList(QWidget):
         pixel_map = QPixmap.fromImage(image)
         new_item_widget = ItemWidget(self, 0, pixel_map) # тут стоит ноль потому что он ничего не значит
         self.representatives.append(new_item_widget) 
+
+        self.raw_photograph_list.append(new_numpy_image / 255) # деление для нормализации от 0-255 к 0-1
+        self.raw_normal_map_list.append(new_numpy_image / 255)
+        self.raw_color_map_list.append(new_numpy_image / 255)
+        self.raw_depth_map_list.append(new_numpy_image / 255)
+        self.raw_vector_list.append(np.array([0,0,0]))
+
         self.scroll_area_layout.addWidget(new_item_widget)
+        new_item_widget.fullUpdate()
         return new_item_widget
     
 # ============================ UPDATING ELEMENT CONTENTS ===============================================
+    def updateVector(self, element, new_value):
+        element_id = self.representativeIndex(element)
+        self.raw_vector_list[element_id] = new_value
+
     def representativeIndex(self, my_element):
         for i in range(len(self.representatives)):
             if self.representatives[i] == my_element:
@@ -88,6 +107,11 @@ class UploadList(QWidget):
     def deleteElement(self, my_element):
         element_index = self.representativeIndex(my_element)
         self.representatives.pop(element_index)
+        self.raw_photograph_list.pop(element_index)
+        self.raw_normal_map_list.pop(element_index)
+        self.raw_color_map_list.pop(element_index)
+        self.raw_depth_map_list.pop(element_index)
+        self.raw_vector_list.pop(element_index)
         my_element.setParent(None)  
         my_element.deleteLater()
 
@@ -99,8 +123,35 @@ class UploadList(QWidget):
 
         print(element_index)
 
-    def SingularUpdate():
-        return
+    def SingularUpdate(self, my_element, map_name):
+        element_id = self.representativeIndex(my_element)
+        element_to_give = self.raw_photograph_list[element_id]
+        element_received = self.my_parent.SingularUpdate(element_to_give, map_name) # uint8 0-255
+        if map_name == "NORMAL": self.raw_normal_map_list[element_id] = element_received
+        if map_name == "COLOR" : self.raw_color_map_list[element_id] = element_received
+        if map_name == "DEPTH" : self.raw_depth_map_list[element_id] = element_received
+        if map_name == "LIGHT" : return # апдейт световой карты производится не тут
+
+    def MassUpdate(self, map_name):
+        dataset = np.array(self.raw_photograph_list)
+
+        results = self.my_parent.MassUpdate(map_name, dataset)
+
+        if map_name == "NORMAL": 
+            for i in range(results.shape[0]):
+                self.raw_normal_map_list[i] = results[i]
+        if map_name == "COLOR" : 
+            for i in range(results.shape[0]):
+                self.raw_color_map_list[i] = results[i]
+        if map_name == "DEPTH" :
+            for i in range(results.shape[0]):
+                self.raw_depth_map_list[i] = results[i]
+
+        for i in range(len(self.representatives)):
+            self.representatives[i].fullUpdate()
+
+            
+        #return element_received
 
 # ============================ DRAGGING AND LOADING ===================================================
     def dragEnterEvent(self, event):

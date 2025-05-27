@@ -2,8 +2,10 @@ import numpy as np
 from PyQt5.QtWidgets import QLabel, QWidget
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QImage, QPixmap
-from numpyimagevisualizer import ItemWidget
-from ScrollableLabel import ScrollLabel
+
+from pyqtint.ScrollableLabel import ScrollLabel
+from pyqtint.numpyimagevisualizer import ItemWidget
+
 NN_PRESET_ROLES = {
     "NORMAL": ("#d399ff", "ImageGen\\pyqtint\\placeholder_normal.png", "Normal map"),
     "COLOR" : ("#8adb96", "ImageGen\\pyqtint\\placeholder_color.png" , "Color map" ),
@@ -87,7 +89,6 @@ class NNHolder(QWidget):
             url = url.toLocalFile()
             if not self.IsTypeValid(url):
                 return
-            print("начинаю грузить модель в NN holder")
             self.my_parent.LoadModel(self.my_role, url)
             
 

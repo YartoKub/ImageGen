@@ -3,8 +3,9 @@ import cv2
 from PyQt5.QtWidgets import QLabel, QWidget, QScrollArea, QVBoxLayout, QPushButton, QListWidget, QFrame
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QImage, QPixmap
-from numpyimagevisualizer import ItemWidget
 from PIL import Image
+
+from pyqtint.numpyimagevisualizer import ItemWidget
 
 class ScrollLabel(QScrollArea):
     def __init__(self, *args, **kwargs):
