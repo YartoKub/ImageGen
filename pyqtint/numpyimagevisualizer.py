@@ -81,8 +81,7 @@ class ItemWidget(QListWidget):
         self.my_parent.FillElement(self)
 
     def delete_self(self):
-        self.setParent(None)  
-        self.deleteLater()
+        self.my_parent.deleteElement(self)
 
     def move_up(self):
         self.my_parent.ItemSwap(self, -1)

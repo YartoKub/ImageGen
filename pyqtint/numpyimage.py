@@ -21,12 +21,15 @@ class UploadList(QWidget):
         self.representatives = []
         
         layout = QVBoxLayout()
-
+        layout.setContentsMargins(0, 0, 0, 0)
+        
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area_content = QWidget()
         self.scroll_area_layout = QVBoxLayout(self.scroll_area_content)
         self.scroll_area.setWidget(self.scroll_area_content)
+        
+
 
         for i in range(9):  
             item_widget = self.RandomWidget(i + 1)
@@ -76,12 +79,20 @@ class UploadList(QWidget):
         return new_item_widget
     
 # ============================ UPDATING ELEMENT CONTENTS ===============================================
-    def FillElement(self, my_element):
-        element_index = -1
+    def representativeIndex(self, my_element):
         for i in range(len(self.representatives)):
             if self.representatives[i] == my_element:
-                element_index = i
-                break
+                return i
+        return -1
+                
+    def deleteElement(self, my_element):
+        element_index = self.representativeIndex(my_element)
+        self.representatives.pop(element_index)
+        my_element.setParent(None)  
+        my_element.deleteLater()
+
+    def FillElement(self, my_element):
+        element_index = self.representativeIndex(my_element)
         if element_index == -1: 
             print("Элемент в списке не найден")
             return
