@@ -11,16 +11,24 @@ class UploadList(QWidget):
     def __init__(self, parent=None):
         super(UploadList, self).__init__(parent)
         self.setFixedHeight(700); 
-        self.setFixedWidth(440); 
+        self.setFixedWidth(64 * 8 + 100); 
         self.setAcceptDrops(True)
         self.setStyleSheet("background-color: #cfcfcf; padding: 0px; margin: 0px; border: none;")
+        self.setContentsMargins(0, 0, 0, 0)
 
         self.my_parent = parent
         self.raw_photograph_list = []
         self.raw_normal_map_list = []
         self.raw_color_map_list = []
         self.raw_depth_map_list = []
+
+        self.raw_diffuse_list = []
+        self.raw_specular_list = []
+        self.raw_shadow_list = []
+        self.raw_result_list = []
+
         self.raw_vector_list = []
+
         self.representatives = []
         
         layout = QVBoxLayout()
@@ -87,6 +95,12 @@ class UploadList(QWidget):
         self.raw_normal_map_list.append(new_numpy_image / 255)
         self.raw_color_map_list.append(new_numpy_image / 255)
         self.raw_depth_map_list.append(new_numpy_image / 255)
+
+        self.raw_diffuse_list.append(new_numpy_image / 255)
+        self.raw_specular_list.append(new_numpy_image / 255)
+        self.raw_shadow_list.append(new_numpy_image / 255)
+        self.raw_result_list.append(new_numpy_image / 255)
+
         self.raw_vector_list.append(np.array([0,0,0]))
 
         self.scroll_area_layout.addWidget(new_item_widget)
@@ -111,6 +125,12 @@ class UploadList(QWidget):
         self.raw_normal_map_list.pop(element_index)
         self.raw_color_map_list.pop(element_index)
         self.raw_depth_map_list.pop(element_index)
+
+        self.raw_diffuse_list.pop(element_index)
+        self.raw_specular_list.pop(element_index)
+        self.raw_shadow_list.pop(element_index)
+        self.raw_result_list.pop(element_index)
+
         self.raw_vector_list.pop(element_index)
         my_element.setParent(None)  
         my_element.deleteLater()
@@ -123,19 +143,38 @@ class UploadList(QWidget):
 
         print(element_index)
 
-    def SingularUpdate(self, my_element, map_name):
+    def SingularUpdate(self, my_element, map_name): # Какие-то макароны получаются, надо как нибудь переписать используя систему Event-ов
         element_id = self.representativeIndex(my_element)
+        '''
         element_to_give = self.raw_photograph_list[element_id]
-        element_received = self.my_parent.SingularUpdate(element_to_give, map_name) # uint8 0-255
+        addition1 = None; addition2 = None
+        if map_name =="DIFFUSE": 
+            element_to_give = self.raw_normal_map_list[element_id]
+            addition1 = self.raw_depth_map_list[element_id]
+        if map_name=="SPECULAR": 
+            element_to_give = self.raw_normal_map_list[element_id]
+            addition1 = self.raw_depth_map_list[element_id]
+        if map_name == "SHADOW": 
+            element_to_give = self.raw_depth_map_list [element_id]
+        if map_name == "LIGHT": 
+            element_to_give = self.raw_diffuse_list [element_id]
+            addition1       = self.raw_specular_list[element_id]
+            addition2       = self.raw_shadow_list  [element_id]
+        '''
+        vector_to_give = self.raw_vector_list[element_id]
+        print(element_id, map_name)
+        element_received = self.my_parent.SingularUpdate(element_id, map_name, vector_to_give) # uint8 0-255
         if map_name == "NORMAL": self.raw_normal_map_list[element_id] = element_received
-        if map_name == "COLOR" : self.raw_color_map_list[element_id] = element_received
-        if map_name == "DEPTH" : self.raw_depth_map_list[element_id] = element_received
-        if map_name == "LIGHT" : return # апдейт световой карты производится не тут
+        if map_name == "COLOR" : self.raw_color_map_list [element_id] = element_received
+        if map_name == "DEPTH" : self.raw_depth_map_list [element_id] = element_received
+        if map_name =="DIFFUSE": self.raw_diffuse_list   [element_id] = element_received
+        if map_name=="SPECULAR": self.raw_specular_list  [element_id] = element_received
+        if map_name == "SHADOW": self.raw_shadow_list    [element_id] = element_received
+        if map_name == "LIGHT" : self.raw_result_list    [element_id] = element_received
+        
 
     def MassUpdate(self, map_name):
-        dataset = np.array(self.raw_photograph_list)
-
-        results = self.my_parent.MassUpdate(map_name, dataset)
+        results = self.my_parent.MassUpdate(map_name)
 
         if map_name == "NORMAL": 
             for i in range(results.shape[0]):
@@ -146,10 +185,25 @@ class UploadList(QWidget):
         if map_name == "DEPTH" :
             for i in range(results.shape[0]):
                 self.raw_depth_map_list[i] = results[i]
+        if map_name == "DIFFUSE": 
+            for i in range(results.shape[0]):
+                self.raw_diffuse_list[i] = results[i]
+        if map_name == "SPECULAR": 
+            for i in range(results.shape[0]):
+                self.raw_specular_list[i] = results[i]
+        if map_name == "SHADOW": 
+            for i in range(results.shape[0]):
+                self.raw_shadow_list[i] = results[i]
+        if map_name == "LIGHT" : 
+            for i in range(results.shape[0]):
+                self.raw_result_list[i] = results[i]
 
         for i in range(len(self.representatives)):
             self.representatives[i].fullUpdate()
 
+    def simpleFullUpdate(self):
+        for i in range(len(self.representatives)):
+            self.representatives[i].fullUpdate()
             
         #return element_received
 

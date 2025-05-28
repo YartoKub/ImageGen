@@ -56,7 +56,7 @@ def linear3DLight(normal, albedo, depth, vector, specular_color = 0.4, ambient_c
             new_photo[x,y] = new_color
     return new_photo
 
-def light3Dspecular(normal_px, albedo_px, light_point, x, y, depth, 
+def light3Dspecular(normal_px, light_point, x, y, depth, 
                     light_strength = 1, 
                     specular_color = 0, reflection_factor = 4  ):
     axis_center = np.array([0.5,0.5,0.5]); # Центр объекта в blender находится на 0,0,0, но здесь координаты от 0 до 1, поэтому я смещаю.
@@ -89,7 +89,7 @@ def light3Dspecular(normal_px, albedo_px, light_point, x, y, depth,
     
     return color
 
-def light3Ddiffuse(normal_px, albedo_px, light_point, 
+def light3Ddiffuse(normal_px, light_point, 
                        x, y, depth, 
                        light_strength = 1, value1 =0, value2=0, value3=0):
     axis_center = np.array([0.5,0.5,0.5]); # Центр объекта в blender находится на 0,0,0, но здесь координаты от 0 до 1, поэтому я смещаю.
@@ -102,28 +102,28 @@ def light3Ddiffuse(normal_px, albedo_px, light_point,
     #color = ambient + strength * diffuse * max([0,0,0], dot(normal, light_dir))
     #print(l_d, lightdir_norm, v_len)
     v_len = v_len if v_len > 0.001 else 0.001
-    color = max(0,  np.dot(normal_px, lightdir_norm)) / v_len
+    color = max(0,  np.dot(normal_px, lightdir_norm) * light_strength) / v_len 
 
     color = (min(1, color), min(1, color), min(1, color))
     
     return color
 
-def soloDiffuse(normal, albedo, depth, light_point, light_strength):
+def soloDiffuse(normal, depth, light_point, light_strength):
     newNorm = normal * 2 - 1
-    bigx, bigy, z = albedo.shape
+    bigx, bigy, z = normal.shape
     if z != 3: return False
     to_return = np.zeros((bigx,bigy,z))
     for x in range(bigx):
         for y in range (bigy):
-            to_return[x, y] = light3Ddiffuse(newNorm[x, y], albedo[x, y], light_point, x, y, depth[x, y],  light_strength)
+            to_return[x, y] = light3Ddiffuse(newNorm[x, y], light_point, x, y, depth[x, y],  light_strength)
     return to_return
 
-def soloSpecular(normal, albedo, depth, light_point, light_strength, specular_color = 0.3, reflection_factor = 4):
+def soloSpecular(normal, depth, light_point, light_strength, specular_color = 0.3, reflection_factor = 4):
     newNorm = normal * 2 - 1
-    bigx, bigy, z = albedo.shape
+    bigx, bigy, z = normal.shape
     if z != 3: return False
     to_return = np.zeros((bigx,bigy,z))
     for x in range(bigx):
         for y in range (bigy):
-            to_return[x, y] = light3Dspecular(newNorm[x, y], albedo[x, y], light_point, x, y, depth[x, y],  light_strength, specular_color, reflection_factor)
+            to_return[x, y] = light3Dspecular(newNorm[x, y], light_point, x, y, depth[x, y],  light_strength, specular_color, reflection_factor)
     return to_return

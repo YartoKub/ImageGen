@@ -12,11 +12,11 @@ THE_GRUMPY_ARRAY = [
     ]
 
 class MyFace(QPushButton):
-    def __init__(self, my_parent):
+    def __init__(self, my_parent, width, height):
         super(MyFace, self).__init__(my_parent)
         self.my_parent = my_parent
-        self.setFixedWidth(210)
-        self.setFixedHeight(150)
+        self.setFixedWidth(width)
+        self.setFixedHeight(height)
         self.current_me = 0
 
         self.my_label = QLabel(self)

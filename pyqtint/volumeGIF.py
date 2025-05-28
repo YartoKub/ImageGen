@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QScrollArea, QVBoxLayout, QPushButton, QLabel
+from PyQt5.QtWidgets import QWidget, QScrollArea, QVBoxLayout, QPushButton, QLabel, QTextEdit
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QMovie
 
@@ -22,13 +22,15 @@ class VolumeGIF(QWidget):
         self.update_normal.setFixedWidth(210);  
         self.update_normal.setFixedHeight(20);
         self.update_normal.setStyleSheet("background-color: red;")
+        #self.update_normal.move(0, 0)
 
         self.label = QLabel(self)
-        self.label.setFixedWidth(200)
-        self.label.setFixedHeight(200)
-        self.label.move(5, 5 + 20)
+        self.label.setFixedWidth(192)
+        self.label.setFixedHeight(192)
+        self.label.move(9, 5 + 20)
         self.label.setObjectName("label")
         self.label.setScaledContents(True)
+
 
         #self.movie = QMovie("ImageGen\\pyqtint\\Dummies\\height0_5.gif")
         #self.label.setMovie(self.movie)

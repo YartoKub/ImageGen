@@ -10,6 +10,8 @@ from matplotlib import pyplot as plt
 from PIL import Image
 import os
 from RGBHSL import image_coverter,  pixel_hsl_to_rgb, pixel_rgb_to_hsl
+from MyNormalLight import soloDiffuse, soloSpecular
+from MyVolumeLight import volume_shadow
 
 # ===== ACCEPTABLE_SIZES =====
 DEFAULT_INPUT_SIZE = (None, 64, 64, 3)
@@ -27,7 +29,9 @@ HSL_FORMAT = "HSL"
 class NN_Manager():
     def __init__(self, parent):
         self.main_window = parent
-        self.NORMAL_MODEL = None #tf.keras.models.load_model("ImageGen\TrainedModels\CubeConvTransDropoutMSENormals001.keras")
+        self.databank = None # Это устанавливается в main
+        self.settings = None # Это устанавливается в main
+        self.NORMAL_MODEL = None
         self.COLOR_MODEL_FORMAT = "RGB"
         self.COLOR_MODEL = None
         self.DEPTH_MODEL = None
@@ -169,13 +173,16 @@ class NN_Manager():
         self.modelUpdate("LIGHT", True, f"Успешная загрузка световой модели! ")
         return
 # ============================= SINGLE IMAGE PROCESSING ====================================
-    def RenderSingleImage(self, map_name, input_image, input_vector = None):
+    def RenderSingleImage(self, map_name, input_index, input_vector = None):
+        print(map_name, input_vector)
         if  map_name == "NORMAL":
+            input_image = self.databank.raw_photograph_list[input_index]
             if self.NORMAL_MODEL == None: return self.fillerImage(input_image)
             result = self.NORMAL_MODEL.predict(input_image.reshape((1, 64, 64, 3)))[0]
             return np.clip(result, 0, 1)
         
         if  map_name == "COLOR" :
+            input_image = self.databank.raw_photograph_list[input_index]
             if self.COLOR_MODEL == None: return self.fillerImage(input_image)
             if self.COLOR_MODEL_FORMAT == RGB_FORMAT:
                 result = input_image - self.COLOR_MODEL.predict(input_image.reshape((1, 64, 64, 3)))[0]
@@ -188,23 +195,66 @@ class NN_Manager():
             return np.clip(result, 0, 1)
         
         if  map_name == "DEPTH" :
+            input_image = self.databank.raw_photograph_list[input_index]
             if self.DEPTH_MODEL == None: return self.fillerImage(input_image)
             result = self.DEPTH_MODEL.predict(input_image.reshape((1, 64, 64, 3)))[0]
             result = np.stack([result, result, result], axis=2)
             return np.clip(result, 0, 1)
+        #=========================== LIGHTING =====================================
+        if  map_name == "LIGHT":
+            input_image = self.databank.raw_normal_map_list[input_index]
+            albedos = np.array(self.databank.raw_color_map_list[input_index])
+            vector = self.databank.raw_vector_list[input_index]
+            issues, light_power, specular_color, specular_factor, threshhold, column, sub_scat, ratio_albedo, ratio_diffuse, ratio_specular, ratio_shadow = self.settings.getSettings()
+            if self.LIGHT_MODEL == None: 
+                albedos = np.array(self.databank.raw_color_map_list[input_index])
+                diffuse = np.array(self.databank.raw_diffuse_list[input_index]) 
+                specular = np.array(self.databank.raw_specular_list[input_index]) * ratio_specular
+                shadow = np.array(self.databank.raw_shadow_list[input_index]) * ratio_shadow
+                result = albedos * ratio_albedo + albedos * diffuse * ratio_diffuse + specular + albedos * shadow
+                print("rere in lighting nn manager")
+                return np.clip(result, 0, 1)
+            else: 
+                result = albedos + self.LIGHT_MODEL.predict([input_image.reshape((1, 64, 64, 3)), vector.reshape((1,3))])[0]
+                return np.clip(result, 0,1) 
         
-        if  map_name == "LIGHT" and input_vector != None:
-            if self.LIGHT_MODEL == None: return self.fillerImage(input_image)
-            result = self.LIGHT_MODEL.predict(input_image.reshape((1, 64, 64, 3)), input_vector)[0]
-            return result # Здесь нет clip т.к. свет может быть выше 1. Ограничение должно накладыватсья позднее
+        if  map_name == "DIFFUSE": # Программаное решение, не использует нейронных сетей
+            normal_map = np.array(self.databank.raw_normal_map_list[input_index])
+            depth_map = np.array(self.databank.raw_depth_map_list[input_index])
+            input_vector = np.array(self.databank.raw_vector_list[input_index])
+            issues, light_power, specular_color, specular_factor, threshhold, column, sub_scat, ratio_albedo, ratio_diffuse, ratio_specular, ratio_shadow = self.settings.getSettings()
+            if issues: return self.fillerImage(input_image) 
+            shadow_map = soloDiffuse(normal_map, depth_map, input_vector, light_power)
+            return np.clip(shadow_map, 0, 1) 
+        
+        if  map_name == "SPECULAR": # Программаное решение, не использует нейронных сетей
+            normal_map = np.array(self.databank.raw_normal_map_list[input_index])
+            depth_map = np.array(self.databank.raw_depth_map_list[input_index])
+            input_vector = np.array(self.databank.raw_vector_list[input_index])
+            issues, light_power, specular_color, specular_factor, threshhold, column, sub_scat, ratio_albedo, ratio_diffuse, ratio_specular, ratio_shadow = self.settings.getSettings()
+            if issues: return self.fillerImage(input_image) 
+            shadow_map = soloSpecular(normal_map, depth_map, input_vector, light_power, specular_color, specular_factor)
+            return np.clip(shadow_map, 0, 1) 
+        
+        if  map_name == "SHADOW": # Программаное решение, не использует нейронных сетей
+            depth_map = np.array(self.databank.raw_depth_map_list[input_index])
+            input_vector = np.array(self.databank.raw_vector_list[input_index])
+            issues, light_power, specular_color, specular_factor, threshhold, column, sub_scat, ratio_albedo, ratio_diffuse, ratio_specular, ratio_shadow = self.settings.getSettings()
+            if issues: return self.fillerImage(input_image) 
+            shadow_map = volume_shadow(depth_map, input_vector, threshhold, column, sub_scat)
+            return np.clip(shadow_map, 0, 1) 
+        
+
 # ================ MULTIPLE IMAGE PROCESSING ======================================================
-    def RenderMultipleImages(self, map_name, input_image_list, input_vector_list = None):
+    def RenderMultipleImages(self, map_name):
         if  map_name == "NORMAL":
+            input_image_list = np.array(self.databank.raw_photograph_list)
             if self.NORMAL_MODEL == None: return self.fillerImage(input_image_list)
             result = self.NORMAL_MODEL.predict(input_image_list)
             return np.clip(result, 0, 1)
         
         if  map_name == "COLOR" :
+            input_image_list = np.array(self.databank.raw_photograph_list)
             if self.COLOR_MODEL == None: return self.fillerImage(input_image_list)
             if self.COLOR_MODEL_FORMAT == RGB_FORMAT:
                 result = input_image_list - self.COLOR_MODEL.predict(input_image_list)
@@ -225,24 +275,67 @@ class NN_Manager():
                     to_return[i] = image_coverter(result[i], pixel_hsl_to_rgb, True, True)
 
                 result = to_return
-
-
-
                 return np.clip(result, 0, 1)
         
         if map_name == "DEPTH" :
+            input_image_list = np.array(self.databank.raw_photograph_list)
             if self.DEPTH_MODEL == None: return self.fillerImage(input_image_list)
             result = self.DEPTH_MODEL.predict(input_image_list)
             result = np.stack([result, result, result], axis=3)
             return np.clip(result, 0, 1)
         
-        if  map_name == "LIGHT" and input_vector_list != None:
-            if self.LIGHT_MODEL == None: return self.fillerImage(input_image_list)
-            result = self.LIGHT_MODEL.predict(input_image_list, input_vector_list)
-            return result # Здесь нет clip т.к. свет может быть выше 1. Ограничение должно накладыватсья позднее
-    
+        if  map_name == "DIFFUSE": # Программаное решение, не использует нейронных сетей
+            normal_map = np.array(self.databank.raw_normal_map_list)
+            depth_map = np.array(self.databank.raw_depth_map_list)
+            vectors = np.array(self.databank.raw_vector_list)
+            issues, light_power, specular_color, specular_factor, threshhold, column, sub_scat, ratio_albedo, ratio_diffuse, ratio_specular, ratio_shadow = self.settings.getSettings()
+            if issues: return self.fillerImage(normal_map)
+            shadow_map = np.zeros(normal_map.shape)
+            for i in range(normal_map.shape[0]):
+                 shadow_map[i] = soloDiffuse(normal_map[i], depth_map[i], vectors[i], light_power)
+            return np.clip(shadow_map, 0, 1) 
+        
+        if  map_name == "SPECULAR": # Программаное решение, не использует нейронных сетей
+            normal_map = np.array(self.databank.raw_normal_map_list)
+            depth_map = np.array(self.databank.raw_depth_map_list)
+            vectors = np.array(self.databank.raw_vector_list)
+            issues, light_power, specular_color, specular_factor, threshhold, column, sub_scat, ratio_albedo, ratio_diffuse, ratio_specular, ratio_shadow = self.settings.getSettings()
+            if issues: return self.fillerImage(normal_map) 
+            shadow_map = np.zeros(normal_map.shape)
+            for i in range(normal_map.shape[0]):
+                 shadow_map[i] = soloSpecular(normal_map[i], depth_map[i], vectors[i], light_power, specular_color, specular_factor)
+            return np.clip(shadow_map, 0, 1) 
+        
+        if  map_name == "SHADOW": # Программаное решение, не использует нейронных сетей
+            depth_map = np.array(self.databank.raw_depth_map_list)
+            vectors = np.array(self.databank.raw_vector_list)
+            issues, light_power, specular_color, specular_factor, threshhold, column, sub_scat, ratio_albedo, ratio_diffuse, ratio_specular, ratio_shadow = self.settings.getSettings()
+            if issues: return self.fillerImage(depth_map) 
+            shadow_map = np.zeros(depth_map.shape)
+            for i in range(depth_map.shape[0]):
+                 shadow_map[i] = volume_shadow(depth_map[i], vectors[i], threshhold, column, sub_scat)
+            return np.clip(shadow_map, 0, 1) 
+        
+        if  map_name == "LIGHT":
+            input_image_list = np.array(self.databank.raw_normal_map_list)
+            albedos = np.array(self.databank.raw_color_map_list)
+            vectors = np.array(self.databank.raw_vector_list)
+            print(input_image_list.shape, vectors.shape)
+            issues, light_power, specular_color, specular_factor, threshhold, column, sub_scat, ratio_albedo, ratio_diffuse, ratio_specular, ratio_shadow = self.settings.getSettings()
+            if self.LIGHT_MODEL == None: 
+                albedos = np.array(self.databank.raw_color_map_list)
+                diffuse = np.array(self.databank.raw_diffuse_list) 
+                specular = np.array(self.databank.raw_specular_list) * ratio_specular
+                shadow = np.array(self.databank.raw_shadow_list) * ratio_shadow
+                result = albedos * ratio_albedo + albedos * diffuse * ratio_diffuse + specular + albedos * shadow
+                #print("rere in lighting nn manager")
+                return np.clip(result, 0, 1)
+            else: 
+                result = albedos +  self.LIGHT_MODEL.predict([input_image_list, vectors])
+                return np.clip(result, 0,1) 
 
-    def fillerImage(self, map_name, input_image):
+    
+    def fillerImage(self, input_image):
         return np.random.random(input_image.shape)
 
 

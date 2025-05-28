@@ -1,5 +1,5 @@
 import numpy as np
-from PyQt5.QtWidgets import QLabel, QWidget
+from PyQt5.QtWidgets import QLabel, QWidget, QPushButton
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QImage, QPixmap
 
@@ -25,26 +25,34 @@ class NNHolder(QWidget):
         self.setStyleSheet(f"background-color: {my_color};")
 
         self.example_image = QLabel(self)
-        self.example_image.move(8,8)
+        self.example_image.move(8,2)
         self.example_image.setFixedHeight(64)
         self.example_image.setFixedWidth (64)
         self.example_image.setScaledContents(True)
         self.example_image.setPixmap       (QPixmap(my_default_adress))
 
         self.map_label = QLabel(self)
-        self.map_label.move(0, 72)
+        self.map_label.move(0, 66)
         self.map_label.setFixedHeight(20)
         self.map_label.setFixedWidth (80)
         self.map_label.setText(my_label_text)
         self.map_label.setAlignment(Qt.AlignCenter)
 
         self.status_label = ScrollLabel(self)
-        self.status_label.move(0, 90)
+        self.status_label.move(0, 84)
         self.status_label.setFixedHeight(80)
         self.status_label.setFixedWidth (80)
         self.status_label.setText(" no model loaded  no model loaded  no model loaded  no model loaded  no model loaded  no model loaded  no model loaded  no model loaded  no model loaded ")
         self.status_label.setAttribute(Qt.WA_StyledBackground, True)
         self.status_label.setStyleSheet(f"background-color: #cf1d1d;")
+
+        self.clear_button = QPushButton(self)
+        self.clear_button.setText(f' CLEAR ')
+        self.clear_button.clicked.connect(self.modelClear)
+        self.clear_button.setFixedWidth(80);  
+        self.clear_button.setFixedHeight(16);
+        self.clear_button.move(0, 164)
+        self.clear_button.setStyleSheet("background-color: gold;")
     
 # ============================ MMY CONTENTS ===========================================================
     def modelUpdate(self, status, reason_str):
@@ -61,7 +69,11 @@ class NNHolder(QWidget):
     def loadSuccess(self, reason_str):
         self.status_label.setText(reason_str)
         self.status_label.setStyleSheet("background-color: #1dcf41;")
-        
+
+    def modelClear(self):
+        self.my_parent.modelClear(self.my_role)
+        self.status_label.setText("Model cleared")
+        self.status_label.setStyleSheet("background-color: #cf1d1d;")
 
 # ============================ DRAGGING AND LOADING ===================================================
     def dragEnterEvent(self, event):

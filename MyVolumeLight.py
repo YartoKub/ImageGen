@@ -5,6 +5,7 @@ import math
 from PIL import Image
 
 def distance_point_to_line(A, B, C, x0, y0):
+    if A == 0 and B == 0: return 0
     distance = abs(A * x0 + B * y0 + C) / math.sqrt(A**2 + B**2)
     return distance
     
@@ -15,6 +16,9 @@ def vector_line(x0, y0, x1, y1):
     return A, B, C
 
 def perpendicular_from_point_to_line(A, B, C, x0, y0):
+    if B == 0: B = 0.0001
+    if A == 0: A = 0.0001
+    if C == 0: C = 0.0001
     if A == 0: 
         x_perpendicular = x0
         y_perpendicular = -C / B
