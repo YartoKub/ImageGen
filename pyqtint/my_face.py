@@ -12,8 +12,9 @@ THE_GRUMPY_ARRAY = [
     ]
 
 class MyFace(QPushButton):
-    def __init__(self, my_parent, width, height):
+    def __init__(self, my_parent, width, height, grumpy_array):
         super(MyFace, self).__init__(my_parent)
+        self.grumpy_array = grumpy_array
         self.my_parent = my_parent
         self.setFixedWidth(width)
         self.setFixedHeight(height)
@@ -25,9 +26,9 @@ class MyFace(QPushButton):
         self.my_label.setScaledContents(True)
         self.my_label.setFixedWidth(210)
         self.my_label.setFixedHeight(150)
-        self.my_label.setPixmap(QPixmap(THE_GRUMPY_ARRAY[self.current_me]))
+        self.my_label.setPixmap(QPixmap(self.grumpy_array[self.current_me]))
         self.clicked.connect(self.scrollMe)
 
     def scrollMe(self):
-        self.current_me = (self.current_me + 1) % len(THE_GRUMPY_ARRAY)
-        self.my_label.setPixmap(QPixmap(THE_GRUMPY_ARRAY[self.current_me]))
+        self.current_me = (self.current_me + 1) % len(self.grumpy_array)
+        self.my_label.setPixmap(QPixmap(self.grumpy_array[self.current_me]))

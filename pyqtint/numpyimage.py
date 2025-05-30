@@ -41,13 +41,12 @@ class UploadList(QWidget):
         self.scroll_area_layout = QVBoxLayout(self.scroll_area_content)
         self.scroll_area.setWidget(self.scroll_area_content)
         self.scroll_area.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        dummy_list = ["ImageGen\\pyqtint\\Dummies\\0016.png", "ImageGen\\pyqtint\\Dummies\\0079.png", "ImageGen\\pyqtint\\Dummies\\3117.png",
-                      "ImageGen\\pyqtint\\Dummies\\0016.png", "ImageGen\\pyqtint\\Dummies\\0079.png", "ImageGen\\pyqtint\\Dummies\\3117.png"]
-        for i in range(len(dummy_list)):  
-            new_img = Image.open(dummy_list[i])
-            np_array = np.asarray(new_img)
-            item_widget = self.AddNewWidget(np_array)
+# Это нужно отключить чтобы работало
+        #dummy_list = ["ImageGen\\pyqtint\\Dummies\\0016.png", "ImageGen\\pyqtint\\Dummies\\0079.png", "ImageGen\\pyqtint\\Dummies\\3117.png", "ImageGen\\pyqtint\\Dummies\\0016.png", "ImageGen\\pyqtint\\Dummies\\0079.png", "ImageGen\\pyqtint\\Dummies\\3117.png"]
+        #for i in range(len(dummy_list)):  
+        #    new_img = Image.open(dummy_list[i])
+        #    np_array = np.asarray(new_img)
+        #    item_widget = self.AddNewWidget(np_array)
             #self.scroll_area_layout.addWidget(item_widget)
 
         layout.addWidget(self.scroll_area)
@@ -69,6 +68,17 @@ class UploadList(QWidget):
         if intA >= len(self.representatives) or intB >= len(self.representatives): return
 
         self.representatives[intA], self.representatives[intB] = self.representatives[intB], self.representatives[intA]
+        self.raw_vector_list[intA], self.raw_vector_list[intB] = self.raw_vector_list[intB], self.raw_vector_list[intA]
+
+        self.raw_photograph_list[intA], self.raw_photograph_list[intB] = self.raw_photograph_list[intB], self.raw_photograph_list[intA]
+        self.raw_normal_map_list[intA], self.raw_normal_map_list[intB] = self.raw_normal_map_list[intB], self.raw_normal_map_list[intA]
+        self.raw_depth_map_list[intA], self.raw_depth_map_list[intB] = self.raw_depth_map_list[intB], self.raw_depth_map_list[intA]
+        self.raw_color_map_list[intA], self.raw_color_map_list[intB] = self.raw_color_map_list[intB], self.raw_color_map_list[intA]
+
+        self.raw_diffuse_list[intA], self.raw_diffuse_list[intB] = self.raw_diffuse_list[intB], self.raw_diffuse_list[intA]
+        self.raw_specular_list[intA], self.raw_specular_list[intB] = self.raw_specular_list[intB], self.raw_specular_list[intA]
+        self.raw_shadow_list[intA], self.raw_shadow_list[intB] = self.raw_shadow_list[intB], self.raw_shadow_list[intA]
+        self.raw_result_list[intA], self.raw_result_list[intB] = self.raw_result_list[intB], self.raw_result_list[intA]
 
         self.UpdateRepresentatives()
 

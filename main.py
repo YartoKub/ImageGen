@@ -4,6 +4,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import QPixmap, QIcon
 from pyqtint.DragDrop import ListBoxWidget
 from PyQt5.QtCore import Qt, QUrl
+import os
 
 from pyqtint.numpyimage import UploadList
 from pyqtint.NNholder import NNHolder
@@ -19,7 +20,7 @@ SECOND_COLUMN = 1280 - 592 - 210 - 100
 class MyWindow(QMainWindow):
     def __init__(self):
         super(MyWindow, self).__init__()
-        self.setWindowTitle("прострая прога")
+        self.setWindowTitle("ImageGen - изменение освещения")
         self.setGeometry(0, 0, 1280, 720)
         self.setContentsMargins(0, 0, 0, 0)
 
@@ -49,7 +50,13 @@ class MyWindow(QMainWindow):
         self.mass_actions = MassActions(SECOND_COLUMN, 30, self,  self.randlist)
         self.mass_actions.move(592 + 100, 150)
 
-        self.my_face = MyFace(self, 210, 150)
+        THE_GRUMPY_ARRAY = [
+            resource_path("ImageGen\\pyqtint\\Dummies\\simply_me.png"),
+            resource_path("ImageGen\\pyqtint\\Dummies\\churchill.png"),
+            resource_path("ImageGen\\pyqtint\\Dummies\\bladerunner.png")
+            ]
+
+        self.my_face = MyFace(self, 210, 150, THE_GRUMPY_ARRAY)
         self.my_face.move(1280 - 210, 0)
 
         self.big_parser = VectorParser(SECOND_COLUMN, 150, self, self.randlist)
@@ -102,6 +109,16 @@ def application():
     window.show()
     sys.exit(app.exec_())
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 if __name__ == '__main__':
     application()
+
+
 
