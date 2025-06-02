@@ -111,6 +111,7 @@ def light3Ddiffuse(normal_px, light_point,
 def soloDiffuse(normal, depth, light_point, light_strength):
     newNorm = normal * 2 - 1
     bigx, bigy, z = normal.shape
+    light_point = np.array([-light_point[1], light_point[0], light_point[2]])
     if z != 3: return False
     to_return = np.zeros((bigx,bigy,z))
     for x in range(bigx):
@@ -121,6 +122,7 @@ def soloDiffuse(normal, depth, light_point, light_strength):
 def soloSpecular(normal, depth, light_point, light_strength, specular_color = 0.3, reflection_factor = 4):
     newNorm = normal * 2 - 1
     bigx, bigy, z = normal.shape
+    light_point = np.array([-light_point[1], light_point[0], light_point[2]])
     if z != 3: return False
     to_return = np.zeros((bigx,bigy,z))
     for x in range(bigx):

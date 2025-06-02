@@ -210,8 +210,8 @@ class NN_Manager():
                 albedos = np.array(self.databank.raw_color_map_list[input_index])
                 diffuse = np.array(self.databank.raw_diffuse_list[input_index]) 
                 specular = np.array(self.databank.raw_specular_list[input_index]) * ratio_specular
-                shadow = np.array(self.databank.raw_shadow_list[input_index]) * ratio_shadow
-                result = albedos * ratio_albedo + albedos * diffuse * ratio_diffuse + specular + albedos * shadow
+                shadow = np.array(self.databank.raw_shadow_list[input_index]) # * ratio_shadow
+                result = albedos * ratio_albedo + albedos * diffuse * ratio_diffuse * shadow + specular #+ albedos * shadow
                 print("rere in lighting nn manager")
                 return np.clip(result, 0, 1)
             else: 
@@ -326,8 +326,8 @@ class NN_Manager():
                 albedos = np.array(self.databank.raw_color_map_list)
                 diffuse = np.array(self.databank.raw_diffuse_list) 
                 specular = np.array(self.databank.raw_specular_list) * ratio_specular
-                shadow = np.array(self.databank.raw_shadow_list) * ratio_shadow
-                result = albedos * ratio_albedo + albedos * diffuse * ratio_diffuse + specular + albedos * shadow
+                shadow = np.array(self.databank.raw_shadow_list)
+                result = albedos * ratio_albedo + albedos * diffuse * shadow * ratio_diffuse + specular
                 #print("rere in lighting nn manager")
                 return np.clip(result, 0, 1)
             else: 

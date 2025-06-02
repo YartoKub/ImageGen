@@ -210,16 +210,16 @@ class SettingsPanel(QWidget):
         self.shadow_ratio.setFixedHeight(30)
         self.shadow_ratio.textChanged.connect(self.ratioShadowCheck)
 
-        self.shadow_ratio.setText("0.25")
-        self.specular_ratio.setText("0.25")
-        self.albedo_ratio.setText("0.25")
-        self.diffuse_ratio.setText("0.25")
+        self.shadow_ratio.setText("0.2")
+        self.specular_ratio.setText("0.8")
+        self.albedo_ratio.setText("0.5")
+        self.diffuse_ratio.setText("0.0")
         self.light_power.setText("1.0")
-        self.spec_factor.setText("3.0")
+        self.spec_factor.setText("1.0")
         self.spec_color.setText("0.3")
         self.volume_column.setText("0.05")
-        self.volume_threshhold.setText('0.01')
-        self.volume_sub_scat.setText("0.05")
+        self.volume_threshhold.setText('0.0001')
+        self.volume_sub_scat.setText("0.25")
 
     def lightPowerCheck(self):
         return self.typicalCheck(self.light_power)
