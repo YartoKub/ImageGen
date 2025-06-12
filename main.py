@@ -17,8 +17,29 @@ from pyqtint.settingsPanel import SettingsPanel
 from pyqtint.finalGIF import FinalGIF
 # Высота 720, ширина: 1280. Мне некогда делать тянущийся интерфейс
 SECOND_COLUMN = 1280 - 592 - 210 - 100
+
+def resource_path(image_name, ):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    print(os.path.join(base_path, image_name))
+    return os.path.join(base_path, image_name)
+
 class MyWindow(QMainWindow):
     def __init__(self):
+        THE_GRUMPY_ARRAY = [
+            resource_path("simply_me.png"),
+            resource_path("churchill.png"),
+            resource_path("bladerunner.png")
+            ]
+        THE_NNH_IMAGE_ARRAY = [
+            resource_path("placeholder_normal.png"),
+            resource_path("placeholder_color.png"),
+            resource_path("placeholder_depth.png"),
+            resource_path("placeholder_depth.png")
+            ]
+
         super(MyWindow, self).__init__()
         self.setWindowTitle("ImageGen - изменение освещения")
         self.setGeometry(0, 0, 1280, 720)
@@ -35,13 +56,13 @@ class MyWindow(QMainWindow):
         self.randlist = UploadList(self)
         self.randlist.move(80, 30)
 
-        self.nnh_normal = NNHolder(self, "NORMAL")
+        self.nnh_normal = NNHolder(self, "NORMAL", THE_NNH_IMAGE_ARRAY)
         self.nnh_normal.move(0, 0)
-        self.nnh_color = NNHolder(self, "COLOR")
+        self.nnh_color = NNHolder(self, "COLOR", THE_NNH_IMAGE_ARRAY)
         self.nnh_color.move(0, 180)
-        self.nnh_depth = NNHolder(self, "DEPTH")
+        self.nnh_depth = NNHolder(self, "DEPTH", THE_NNH_IMAGE_ARRAY)
         self.nnh_depth.move(0, 360)
-        self.nnh_light = NNHolder(self, "LIGHT")
+        self.nnh_light = NNHolder(self, "LIGHT", THE_NNH_IMAGE_ARRAY)
         self.nnh_light.move(0, 540)
 
         self.volumeGIF = VolumeGIF(self,  self.randlist)
@@ -50,11 +71,7 @@ class MyWindow(QMainWindow):
         self.mass_actions = MassActions(SECOND_COLUMN, 30, self,  self.randlist)
         self.mass_actions.move(592 + 100, 150)
 
-        THE_GRUMPY_ARRAY = [
-            resource_path("ImageGen\\pyqtint\\Dummies\\simply_me.png"),
-            resource_path("ImageGen\\pyqtint\\Dummies\\churchill.png"),
-            resource_path("ImageGen\\pyqtint\\Dummies\\bladerunner.png")
-            ]
+        
 
         self.my_face = MyFace(self, 210, 150, THE_GRUMPY_ARRAY)
         self.my_face.move(1280 - 210, 0)
@@ -109,13 +126,7 @@ def application():
     window.show()
     sys.exit(app.exec_())
 
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
 
-    return os.path.join(base_path, relative_path)
 
 if __name__ == '__main__':
     application()

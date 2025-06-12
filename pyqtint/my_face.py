@@ -4,13 +4,13 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap
 from PIL import Image
 from matplotlib import pyplot as plt
-
+'''
 THE_GRUMPY_ARRAY = [
     "ImageGen\\pyqtint\\Dummies\\simply_me.png",
     "ImageGen\\pyqtint\\Dummies\\churchill.png", 
     "ImageGen\\pyqtint\\Dummies\\bladerunner.png"
     ]
-
+'''
 class MyFace(QPushButton):
     def __init__(self, my_parent, width, height, grumpy_array):
         super(MyFace, self).__init__(my_parent)

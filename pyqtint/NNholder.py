@@ -7,16 +7,16 @@ from pyqtint.ScrollableLabel import ScrollLabel
 from pyqtint.numpyimagevisualizer import ItemWidget
 
 NN_PRESET_ROLES = {
-    "NORMAL": ("#d399ff", "ImageGen\\pyqtint\\placeholder_normal.png", "Normal map"),
-    "COLOR" : ("#8adb96", "ImageGen\\pyqtint\\placeholder_color.png" , "Color map" ),
-    "DEPTH" : ("#c2c2c2", "ImageGen\\pyqtint\\placeholder_depth.png" , "Depth map" ),
-    "LIGHT" : ("#fcfcd2", "ImageGen\\pyqtint\\placeholder_depth.png" , "Light map" ),
+    "NORMAL": ("#d399ff", "ImageGen\\pyqtint\\placeholder_normal.png", "Normal map", 0),
+    "COLOR" : ("#8adb96", "ImageGen\\pyqtint\\placeholder_color.png" , "Color map" , 1),
+    "DEPTH" : ("#c2c2c2", "ImageGen\\pyqtint\\placeholder_depth.png" , "Depth map" , 2),
+    "LIGHT" : ("#fcfcd2", "ImageGen\\pyqtint\\placeholder_depth.png" , "Light map" , 3),
 }
 class NNHolder(QWidget):
-    def __init__(self, parent=None, preset_role = "LIGHT"):
+    def __init__(self, parent=None, preset_role = "LIGHT", my_array = None):
         super(NNHolder, self).__init__(parent)
         self.my_parent = parent
-        my_color, my_default_adress, my_label_text = NN_PRESET_ROLES[preset_role]
+        my_color, my_default_adress, my_label_text, my_index = NN_PRESET_ROLES[preset_role]
         self.my_role = preset_role
         self.setFixedHeight(180); 
         self.setFixedWidth(80); 
@@ -29,7 +29,8 @@ class NNHolder(QWidget):
         self.example_image.setFixedHeight(64)
         self.example_image.setFixedWidth (64)
         self.example_image.setScaledContents(True)
-        self.example_image.setPixmap       (QPixmap(my_default_adress))
+        if my_array != None: 
+            self.example_image.setPixmap       (QPixmap(my_array[my_index]))
 
         self.map_label = QLabel(self)
         self.map_label.move(0, 66)
