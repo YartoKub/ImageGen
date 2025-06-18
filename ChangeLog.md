@@ -2,6 +2,14 @@
 
 DataSet лежит  [Тут](https://github.com/YartoKub/ImageGen/tree/main/pred_EEVEE_gold_cube), это устаревшая версия, по мере работы я добавлю больше картинок. Датасет хранится в виде Numpy массивов, там есть и картинки, и направления векторов.
 
+# До 18 мая:
+
+Сделал много маленьких вещей и различных исправлений там и тут.
+
+Обучил модельки таким образом, чтобы они могли работать с лицами людей. Датасет синтетический, получен в блендере. В целом вышло неплохо. [albedo](https://github.com/YartoKub/ImageGen/blob/main/human_albedos.ipynb) [depth](https://github.com/YartoKub/ImageGen/blob/main/human_depth.ipynb) [normal](https://github.com/YartoKub/ImageGen/blob/main/human_normals.ipynb)
+
+![finalanimation](https://github.com/user-attachments/assets/f651cd04-fbf6-4edb-bdfa-f7c4a66fb47f)
+
 # 28-29 числа
 
 PyQT очень удобная штука. Золотой инструмент. Сделал все что хотел, и даже чуть больше. Можно грузить изображения и нейросети Drag&Drop, вручную назначать позицию источника света, парсить списки с координатами источников света. 
