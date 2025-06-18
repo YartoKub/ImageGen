@@ -1,4 +1,5 @@
 '''
-pyinstaller main.py --onefile --add-data "pyqtint\\Dummies\\simply_me.png:." --add-data "pyqtint\\Dummies\\churchill.png:." --add-data "pyqtint\\Dummies\\bladerunner.png:."
+
+pyinstaller main.py --onefile --add-data "simply_me.png:." --add-data "churchill.png:." --add-data "bladerunner.png:." --add-data "placeholder_normal.png:." --add-data "placeholder_color.png:." --add-data "placeholder_depth.png:."
 
 '''
