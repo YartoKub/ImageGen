@@ -21,10 +21,14 @@ COLOR_OUTPUT_HSL_SIZE = (None, 64, 64, 2) # Использует HSL, поэто
 COLOR_OUTPUT_RGB_SIZE = (None, 64, 64, 3) # Использует нормальный RGB
 
 LIGHT_INPUT_SIZE = [(None, 64, 64, 3), (3,)]
+LIGHT_INPUT_SIZE_ALT = [(None, 64, 64, 4), (3,)]
 LIGHT_OUTPUT_SIZE = (None, 64, 64, 3)
 
 RGB_FORMAT = "RGB"
 HSL_FORMAT = "HSL"
+
+LIGHT_FORMAT_ND = "NORMAL_AND_DEPTH"
+LIGHT_FORMAT_N = "NORMAL_ONLY"
 
 class NN_Manager():
     def __init__(self, parent):
@@ -33,6 +37,7 @@ class NN_Manager():
         self.settings = None # Это устанавливается в main
         self.NORMAL_MODEL = None
         self.COLOR_MODEL_FORMAT = "RGB"
+        self.LIGHT_MODEL_FORMAT = LIGHT_FORMAT_N
         self.COLOR_MODEL = None
         self.DEPTH_MODEL = None
         self.LIGHT_MODEL = None
@@ -153,11 +158,11 @@ class NN_Manager():
         for i, out in enumerate(outputs):
             act_outputs.append(tuple(out.shape))
 
+            #act_outputs.append(tuple(out.shape))
+        print(act_inputs)
+
         if len(act_inputs) != 2: # На вход подается матрица с изображением и матрица с вектором
             self.modelUpdate("LIGHT", False, f"Количество входных матриц равно {len(act_inputs)}, должно быть две входных матрицы")
-            return
-        if act_inputs[0] != LIGHT_INPUT_SIZE[0]: 
-            self.modelUpdate("LIGHT", False, f"Неправильный размер первой входной матрицы: {str(act_inputs[0])}, должно быть: {LIGHT_INPUT_SIZE[0]}")
             return
         if act_inputs[1] == LIGHT_INPUT_SIZE[1]:
             self.modelUpdate("LIGHT", False, f"Неправильный размер второй входной матрицы: {str(act_inputs[1])}, должно быть: {LIGHT_INPUT_SIZE[1]}")
@@ -169,8 +174,23 @@ class NN_Manager():
             self.modelUpdate("LIGHT", False, f"Неправильный размер ВЫходной матрицы:  {str(act_outputs[0])}, должно быть: {LIGHT_OUTPUT_SIZE}")
             return 
         
-        self.LIGHT_MODEL = loaded_model
-        self.modelUpdate("LIGHT", True, f"Успешная загрузка световой модели! ")
+        if act_inputs[0] == LIGHT_INPUT_SIZE[0]: # Эта принимает только нормали (64,64,3)
+            self.LIGHT_MODEL = loaded_model
+            self.LIGHT_MODEL_FORMAT = LIGHT_FORMAT_N
+            self.modelUpdate("LIGHT", True, f"Успешная загрузка световой модели! Работает только с Нормалями, игнорирует глубину")
+            return
+        elif act_inputs[0] == LIGHT_INPUT_SIZE_ALT[0]: # Эта принимает нормали и глубину (64,64,3) + (64,64,1) = (64,64,4)
+            self.LIGHT_MODEL = loaded_model
+            self.LIGHT_MODEL_FORMAT = LIGHT_FORMAT_ND
+            self.modelUpdate("LIGHT", True, f"Успешная загрузка световой модели! Работает с нормалями и глубиной")
+        else:
+            self.modelUpdate("LIGHT", False, f"Неправильный размер первой входной матрицы: {str(act_inputs[0])}, должно быть: {LIGHT_INPUT_SIZE[0]} или {LIGHT_INPUT_SIZE_ALT[0]}")
+            return
+
+        #if act_inputs[0] ==LIGHT_INPUT_SIZE[0]:
+        
+        #self.LIGHT_MODEL = loaded_model
+        #self.modelUpdate("LIGHT", True, f"Успешная загрузка световой модели! ")
         return
 # ============================= SINGLE IMAGE PROCESSING ====================================
     def RenderSingleImage(self, map_name, input_index, input_vector = None):
@@ -214,7 +234,13 @@ class NN_Manager():
                 result = albedos * ratio_albedo + albedos * diffuse * ratio_diffuse * shadow + specular #+ albedos * shadow
                 print("rere in lighting nn manager")
                 return np.clip(result, 0, 1)
-            else: 
+            if self.LIGHT_MODEL_FORMAT == LIGHT_FORMAT_ND:
+                depth = np.array(self.databank.raw_depth_map_list[input_index])
+                input_array = np.stack([input_image[:,:,0],input_image[:,:,1],input_image[:,:,2], depth[:,:,0]], axis = 2)
+                print(input_array.shape)
+                result = albedos + self.LIGHT_MODEL.predict([input_array.reshape((1, 64, 64, 4)), vector.reshape((1,3))])[0]
+                return np.clip(result, 0,1) 
+            if self.LIGHT_MODEL_FORMAT == LIGHT_FORMAT_N:
                 result = albedos + self.LIGHT_MODEL.predict([input_image.reshape((1, 64, 64, 3)), vector.reshape((1,3))])[0]
                 return np.clip(result, 0,1) 
         
@@ -330,9 +356,20 @@ class NN_Manager():
                 result = albedos * ratio_albedo + albedos * diffuse * shadow * ratio_diffuse + specular
                 #print("rere in lighting nn manager")
                 return np.clip(result, 0, 1)
-            else: 
+            
+            if self.LIGHT_MODEL_FORMAT == LIGHT_FORMAT_ND:
+                depth = np.array(self.databank.raw_depth_map_list)
+                print(input_image_list[:,:,:,0].shape, depth[:,:,:,0].shape)
+                input_arrays = np.stack([input_image_list[:,:,:,0],input_image_list[:,:,:,1],input_image_list[:,:,:,2], depth[:,:,:,0]], axis = 3)
+                print(input_arrays.shape)
+                result = albedos +  self.LIGHT_MODEL.predict([input_arrays, vectors])
+                return np.clip(result, 0,1) 
+            if self.LIGHT_MODEL_FORMAT == LIGHT_FORMAT_N:
                 result = albedos +  self.LIGHT_MODEL.predict([input_image_list, vectors])
                 return np.clip(result, 0,1) 
+            #else: 
+            #   result = albedos +  self.LIGHT_MODEL.predict([input_image_list, vectors])
+            #   return np.clip(result, 0,1) 
 
     
     def fillerImage(self, input_image):
